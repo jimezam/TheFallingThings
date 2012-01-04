@@ -10,6 +10,8 @@ void setup()
   frameRate(30);
   noStroke();
   smooth();
+  
+  firstTime = true;
 
   reset();  
 }
@@ -25,11 +27,24 @@ void reset()
 
 void draw() 
 {
-  background(0);
+  background(244);
+
+  if(universe.isActive())
+  {  
+    universe.paint();
   
-  universe.paint();
-  
-  universe.passTime();
+    universe.passTime();
+  }
+  else
+  {  
+    int l = 260;
+    PImage pauseImg = loadImage("img/player_pause.png");
+    image(pauseImg, (width - l)/2, (height - l)/2 - 50, l, l);
+
+    textAlign(CENTER, CENTER);
+    textSize(33);
+    text("Paused!", 20, (height - l)/2 + l - 50, width - 40, 100);
+  }
 }
 
 void keyPressed() 
@@ -248,6 +263,8 @@ class Universe extends Thing
     {
       noLoop();
       
+      draw();
+      
       println("Getting paused :-(");
     }      
 }
@@ -384,12 +401,12 @@ public class FallingThing extends Thing
     stroke(240, 15, 15);
     strokeWeight(2);
 
-/*
+    /*
     ellipse(this.location.x + this.dimension.x/2, 
     this.location.y + this.dimension.y/2, 
     this.dimension.x, 
     this.dimension.y);
-*/
+    */
 
     rect(this.location.x, 
          this.location.y, 
@@ -418,7 +435,7 @@ class Paddle extends Thing
 
 //////////////////////////////////////////////////////////////////////////////
 
-// scores, pause(msg), got/miss(msg)
+// scores, got/miss(msg)
 // change view
 // wiimote (2)
 // opencv

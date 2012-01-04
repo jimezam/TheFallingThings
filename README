@@ -1,7 +1,9 @@
 The Falling Things
 ------------------
 
-v0.1		20120103	Initial version.
+* Change log
+
+v0.1a		20120103	Initial version.
 
   - Basic falling things.
   - Different speeds (random) for falling things.
@@ -10,3 +12,9 @@ v0.1		20120103	Initial version.
   - Variables: speed of falling things, amount of falling things and length of paddle are established but constant for now.
   - User interaction with keyboard (left/right arrows) and mouse (horizontal movement).
   - Keystrokes reset scenario (r), pause scenario (p) and quit sketch (q).
+  - Pause sign with image.
+
+* Resources
+
+  - Pause Sign
+    http://openclipart.org/detail/108451/player-pause-by-anonymous
