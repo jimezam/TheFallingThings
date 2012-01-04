@@ -70,6 +70,14 @@ void keyPressed()
       case RIGHT:
         universe.movePaddle(RIGHT);
       break;
+      
+      case UP:
+        universe.setMaxFallingThingsSpeed(universe.getMaxFallingThingsSpeed() + 0.1);
+      break;
+
+      case DOWN:
+        universe.setMaxFallingThingsSpeed(universe.getMaxFallingThingsSpeed() - 0.1);
+      break;
     }
   }
   else
@@ -86,6 +94,14 @@ void keyPressed()
       
       case 'q':
         exit();
+      break;
+      
+      case '+':
+        universe.setMaxFallingThingsCount(universe.getMaxFallingThingsCount() + 1);
+      break;
+      
+      case '-':
+        universe.setMaxFallingThingsCount(universe.getMaxFallingThingsCount() - 1);
       break;
     }
   }
@@ -147,16 +163,16 @@ class Universe extends Thing
     this.fallingThings = new ArrayList();
     
     this.maxFallingThingsCount = 5;
-    this.maxFallingThingsSpeed = 2.3;
+    this.maxFallingThingsSpeed = 2.5;
     
     this.active = true;
     
     this.scoreGood = 0;
     this.scoreBad  = 0;
 
-    this.fallingThingWidth  = 60;
-    this.fallingThingHeight = 60;    
-    this.fallingThingDepth  = 60;
+    this.fallingThingWidth  = 50;
+    this.fallingThingHeight = 50;    
+    this.fallingThingDepth  = 50;
 
     this.showSign = -1;
     this.showSignTime = 0;    
@@ -193,10 +209,10 @@ class Universe extends Thing
     String message = "Falling Things catched: " + this.scoreGood +
                      "; missed: " + this.scoreBad +
                      "; amount: " + this.maxFallingThingsCount +
-                     "; speed: " + this.maxFallingThingsSpeed;
+                     "; speed limit: " + nf(this.maxFallingThingsSpeed, 1, 1);
     
     fill(0);
-    textSize(20);
+    textSize(18);
     textAlign(CENTER, CENTER);
     text(message, width/2, 20);
   }
@@ -385,6 +401,36 @@ class Universe extends Thing
   public boolean isActive()
   {
     return this.active;
+  }
+  
+  public float getMaxFallingThingsSpeed()
+  {
+      return this.maxFallingThingsSpeed;
+  }
+  
+  public boolean setMaxFallingThingsSpeed(float value)
+  {
+    if(value < 0)
+      return false;
+      
+    this.maxFallingThingsSpeed = value;
+      
+    return true;
+  }
+  
+  public int getMaxFallingThingsCount()
+  {
+      return this.maxFallingThingsCount;
+  }
+  
+  public boolean setMaxFallingThingsCount(int value)
+  {
+    if(value < 0)
+      return false;
+      
+    this.maxFallingThingsCount = value;
+      
+    return true;
   }
 }
 

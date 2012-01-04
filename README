@@ -16,10 +16,13 @@ v0.1a		20120103	Initial version.
   - Scores (catched/missed) plus variables info displayed.
   - Falling things pushes other things below them if they are slower.
   - Temporal graphical signs for catch/miss events with transparency.
+  - Keyboard shortcuts to control the speed limit of the fallings things and its amount.
 
 * Keys
 
   Arrows (LEFT, RIGHT)	Moves the paddle
+  Arrows (UP, DOWN)	Control the speed limit of the falling things	
+  +,-			Control the amount of falling things
   q			Quit
   r			Reset
   p			Pause
