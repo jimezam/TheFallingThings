@@ -1,6 +1,12 @@
 //////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Sketch universe container
+ */
+
 Universe universe;
+
+PImage[] graphics;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -11,8 +17,11 @@ void setup()
   noStroke();
   smooth();
   
-  firstTime = true;
-
+  graphics = new PImage[] {
+    loadImage("img/baby_smiling.png"),  
+    loadImage("img/baby_sad.png")  
+  };
+  
   reset();  
 }
 
@@ -41,6 +50,7 @@ void draw()
     PImage pauseImg = loadImage("img/player_pause.png");
     image(pauseImg, (width - l)/2, (height - l)/2 - 50, l, l);
 
+    fill(0);
     textAlign(CENTER, CENTER);
     textSize(33);
     text("Paused!", 20, (height - l)/2 + l - 50, width - 40, 100);
@@ -103,6 +113,16 @@ class Universe extends Thing
   private float maxFallingThingsSpeed;
   
   private boolean active;
+  
+  private int scoreGood;
+  private int scoreBad;
+
+  private int fallingThingWidth;
+  private int fallingThingHeight;    
+  private int fallingThingDepth;    
+  
+  private int showSign;
+  private int showSignTime;
 
   public Universe(float ratio)
   {
@@ -126,10 +146,20 @@ class Universe extends Thing
                                     
     this.fallingThings = new ArrayList();
     
-    this.maxFallingThingsCount = 4;
+    this.maxFallingThingsCount = 5;
     this.maxFallingThingsSpeed = 2.3;
     
     this.active = true;
+    
+    this.scoreGood = 0;
+    this.scoreBad  = 0;
+
+    this.fallingThingWidth  = 60;
+    this.fallingThingHeight = 60;    
+    this.fallingThingDepth  = 60;
+
+    this.showSign = -1;
+    this.showSignTime = 0;    
   }
 
   public void paint()
@@ -138,6 +168,20 @@ class Universe extends Thing
     
     ground.paint();
     
+    // Show the success/failure sign
+    
+    if(this.showSign >= 0 && this.showSignTime > 0)
+    {
+      tint(255, 170);
+      
+      image(graphics[this.showSign], (width - 300)/2, 80, 300, 220);
+      
+      noTint();
+      
+      if(millis() >= this.showSignTime)
+        hideSign();
+    }
+    
     for(FallingThing fthing : this.fallingThings)
     {
       fthing.paint();
@@ -145,6 +189,16 @@ class Universe extends Thing
     }
     
     paddle.paint();
+    
+    String message = "Falling Things catched: " + this.scoreGood +
+                     "; missed: " + this.scoreBad +
+                     "; amount: " + this.maxFallingThingsCount +
+                     "; speed: " + this.maxFallingThingsSpeed;
+    
+    fill(0);
+    textSize(20);
+    textAlign(CENTER, CENTER);
+    text(message, width/2, 20);
   }
   
   public void movePaddle(int direction)
@@ -198,51 +252,110 @@ class Universe extends Thing
   
   public void passTime()
   {
-    if(this.fallingThings.size() <= this.maxFallingThingsCount)
+    if(this.fallingThings.size() < this.maxFallingThingsCount)
     {
       this.fallingThings.add(this.createFallingThing());
     }
-    
+
+    handleCollisions();
+  }
+  
+  private void handleCollisions()
+  {
     for(int i=0; i<this.fallingThings.size(); i++)
     {
       FallingThing fthing = this.fallingThings.get(i);
       
+      // Checking for collisions between the things (pushing each other)
+      
+      for(int j=0; j<this.fallingThings.size(); j++)
+      {
+        // Avoid checking with itself        
+        
+        if(i == j)
+          continue;
+          
+        // Get the second thing to compare  
+          
+        FallingThing fthing2 = this.fallingThings.get(j);
+        
+        if(fthing.hasCollision(fthing2))
+        {
+          if(fthing.isAbove(fthing2))
+          {
+            float diff = (fthing.location.y + fthing.dimension.y) - fthing2.getLocation().y;
+            
+            PVector newLocation = fthing2.getLocation();
+            
+            newLocation.y += diff + 6; 
+            
+            fthing2.setLocation(newLocation);
+          }
+        }
+      }      
+      
       boolean explode = false;      
+      
+      // Checking collision with the paddle (you got it)
       
       if(fthing.hasCollision(this.paddle))
       {
         explode = true;
         
+        this.scoreGood ++;
+        
+        showSign(0, 1.5);
+        
         println(hour() + ":" + minute() + ":" + second() + "." + millis() + " Got it!");        
       }
+      
+      // Checking things leaving the universe (you missed it)
       
       if(!fthing.hasCollision(this))
       {
         explode = true;
         
+        this.scoreBad ++;
+        
+        showSign(1, 1.5);
+        
         println(hour() + ":" + minute() + ":" + second() + "." + millis() + " Miss it!");        
       }
+      
+      // Exploding the thing
       
       if(explode)
       {
         this.fallingThings.remove(i);
         
         i--;
-      }
+      }      
     }
+  }
+  
+  public void showSign(int signIndex, float seconds)
+  {
+    this.showSign = signIndex;
+    
+    this.showSignTime = int(millis() + seconds * 1000);
+  }
+  
+  public void hideSign()
+  {
+    this.showSign = -1;
+    
+    this.showSignTime = 0;
   }
   
   private FallingThing createFallingThing()
   {
     FallingThing thing;
 
-    int ftWidth  = 60;
-    int ftHeight = 60;    
-    float x      = random(0, width - ftWidth);
+    float x      = random(0, width - this.fallingThingWidth);
     float speed  = random(0.5, this.maxFallingThingsSpeed);
     
     thing = new FallingThing(new PVector(x, 0), 
-                             new PVector(ftWidth, ftHeight), 
+                             new PVector(this.fallingThingWidth, this.fallingThingHeight, this.fallingThingDepth), 
                              new PVector(0, speed), 
                              new PVector(1, 1));    
     
@@ -413,6 +526,14 @@ public class FallingThing extends Thing
          this.dimension.x, 
          this.dimension.y);
   }
+  
+  public boolean isAbove(Thing other)
+  {
+    if(this.location.y < other.getLocation().y)
+      return true;
+    
+    return false;  
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -435,7 +556,8 @@ class Paddle extends Thing
 
 //////////////////////////////////////////////////////////////////////////////
 
-// scores, got/miss(msg)
+// change variables keyboard
+// sound
 // change view
 // wiimote (2)
 // opencv
