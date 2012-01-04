@@ -1,0 +1,12 @@
+The Falling Things
+------------------
+
+v0.1		20120103	Initial version.
+
+  - Basic falling things.
+  - Different speeds (random) for falling things.
+  - Detection collision with the padding.
+  - Detection of missed falling things.
+  - Variables: speed of falling things, amount of falling things and length of paddle are established but constant for now.
+  - User interaction with keyboard (left/right arrows) and mouse (horizontal movement).
+  - Keystrokes reset scenario (r), pause scenario (p) and quit sketch (q).
